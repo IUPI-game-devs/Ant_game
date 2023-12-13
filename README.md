@@ -12,4 +12,4 @@ Most of the work was done with the help of the code writen in class, like the pl
 - The ability of the camera following the player. This was done with an asset called "cinemachines".
 - The player follows the mouse,. wherever the mouse is, thats the "forward" of the player.
 - A giant map for tons of exploration.
-- A S=simple HUD to show health and hunger.
+- A simple HUD to show health and hunger.
