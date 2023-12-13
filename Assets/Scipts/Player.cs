@@ -19,7 +19,7 @@ public class Player : MonoBehaviour
     void Update()
     {   
         Vector3 mousePos = Mouse.current.position.ReadValue();
-        mousePos.z = 100f;
+        mousePos.z = 14f;
         mousePos = cam.ScreenToWorldPoint(mousePos) - transform.position;
         transform.Translate(movementValue.x * Time.deltaTime, 0, movementValue.y * Time.deltaTime);
         transform.rotation = Quaternion.LookRotation(mousePos, Vector3.up); 
