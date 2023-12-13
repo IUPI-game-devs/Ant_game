@@ -7,46 +7,46 @@ using Random=UnityEngine.Random;
 
 public class EnemyFSM : MonoBehaviour
 {
-    public Transform player;
+    public enum EnemyState{MoveRandomly,ChasePlayer,AttackPlayer};
+    public EnemyState currentState;
+    public Sight sightSensor;
+    public float playerAttackDistance;
     public float moveSpeed = 5f;
+    public float chaseRange = 5f;
     public float rotationSpeed = 2f;
-    public float chaseRange = 10f;
-    public float attackRange = 2f;
-    private NavMeshAgent agent;
-
-    private enum EnemyState
+    private Vector3 destination;
+    
+    private void Awake()
     {
-        MoveRandomly,
-        ChasePlayer,
-        AttackPlayer
-    }
-
-    private EnemyState currentState;
-
-    private void Start()
-    {
-        agent = GetComponent<NavMeshAgent>();
         currentState = EnemyState.MoveRandomly;
     }
-
-    private void Update()
+    void Update()
     {
         switch (currentState)
         {
-            case EnemyState.MoveRandomly:
-                MoveRandomly();
-                break;
-            case EnemyState.ChasePlayer:
-                ChasePlayer();
-                break;
-            case EnemyState.AttackPlayer:
-                AttackPlayer();
-                break;
+        case EnemyState.MoveRandomly:
+            MoveRandomly();
+            break;
+        case EnemyState.ChasePlayer:
+            ChasePlayer();
+            break;
+        case EnemyState.AttackPlayer:
+            AttackPlayer();
+            break;
         }
     }
-
-    private void MoveRandomly()
+    void LookTo(Vector3 targetPosition)
     {
+        Vector3 directionToPosition = Vector3.Normalize(targetPosition - transform.parent.position);
+        directionToPosition.y = 0;
+        transform.parent.forward = directionToPosition;
+    }
+    void MoveRandomly()
+    {
+        if(sightSensor.detectedObject != null)
+        {
+            currentState = EnemyState.ChasePlayer;
+        }
         // Move randomly in one direction
         transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
 
@@ -54,45 +54,43 @@ public class EnemyFSM : MonoBehaviour
         transform.Rotate(Vector3.up * Random.Range(-180f, 180f) * rotationSpeed * Time.deltaTime);
     }
 
-    private void ChasePlayer()
+    
+
+    void ChasePlayer()
     {
-        // Calculate the distance between the enemy and the player
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-
-        // Check if the player is within the chase range
-        if (distanceToPlayer <= chaseRange)
+        LookTo(sightSensor.detectedObject.transform.position);
+        if(sightSensor.detectedObject == null)
         {
-            // Rotate towards the player
-            Vector3 direction = (player.position - transform.position).normalized;
-            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0f, direction.z));
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, rotationSpeed * Time.deltaTime);
-
-            // Move towards the player
-            transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
-        }
-        else
-        {
-            // Transition back to MoveRandomly state
             currentState = EnemyState.MoveRandomly;
+            return;
+        }
+        //verifies if the player is in range to attack
+        float distanceToPlayer = Vector3.Distance(transform.position, sightSensor.detectedObject.transform.position);
+        if(distanceToPlayer <= playerAttackDistance)
+        {
+            currentState = EnemyState.AttackPlayer;
         }
     }
 
-    private void AttackPlayer()
+    void AttackPlayer()
     {
-        // Calculate the distance between the enemy and the player
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-
-        // Check if the player is within the attack range
-        if (distanceToPlayer <= attackRange)
+        if(sightSensor.detectedObject == null)
         {
-            // Attack the player
-            Debug.Log("Attacking player!");
+            currentState = EnemyState.MoveRandomly;
+            return;
         }
-        else
+
+        float distanceToPlayer = Vector3.Distance(transform.position, sightSensor.detectedObject.transform.position);
+        if(distanceToPlayer > playerAttackDistance* 1.1)
         {
-            // Transition back to ChasePlayer state
             currentState = EnemyState.ChasePlayer;
         }
     }
-}
 
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, playerAttackDistance);
+        
+    }
+}
