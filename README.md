@@ -181,10 +181,26 @@ public class QueenHealth : MonoBehaviour
 }
 ```
 
+### the player
 
+Controls:
 
-## New aditions
-- The ability of the camera following the player. This was done with an asset called "cinemachines".
-- The player follows the mouse,. wherever the mouse is, thats the "forward" of the player.
-- A giant map for tons of exploration.
-- A simple HUD to show health and hunger.
+In this game we could use part of the player script done in class, mainly the new input system. This helped a lot in speeding up the process of coding. Apart from that, the player follows the mouse as the model will always face where the mouse is pointing. that meaans when the player presses W it will move towards the mouse pointer, S moves the player away from it, etc. this is all done on the update function.
+
+```c#
+    void Update()
+    {   
+        // follows mouse pointer
+        mousePos = Mouse.current.position.ReadValue();
+        mousePos.z = 100f;
+        mousePos = cam.ScreenToWorldPoint(mousePos) - transform.position;
+
+        // other stuff
+        transform.Translate(movementValue.x * Time.deltaTime, 0, movementValue.y * Time.deltaTime);
+        transform.rotation = Quaternion.LookRotation(mousePos, Vector3.up); 
+    }
+```
+
+Camera:
+
+For the camera, istead of normaly rotate with the player we had to detatch it, but by doing so it stopped following the player, we then implemented Cinemachine to fix out problem. The fascinating thing about cinemachine is the fact that you dont have to program or code anything for it to work. Cinemachine has a lot of amazing things ranging from, following a model, changing camera perspectives, doing cutscenes; so it was right up our alley. 
