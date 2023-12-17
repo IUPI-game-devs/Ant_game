@@ -2,7 +2,7 @@
 
 
 
-Created by: Edward Garcia and Luis Velázquez
+Created by: Edward Garcia and Luis Velázquez and Bryan Guevara
 
 ## Description
 
@@ -203,4 +203,143 @@ In this game we could use part of the player script done in class, mainly the ne
 
 Camera:
 
-For the camera, istead of normaly rotate with the player we had to detatch it, but by doing so it stopped following the player, we then implemented Cinemachine to fix out problem. The fascinating thing about cinemachine is the fact that you dont have to program or code anything for it to work. Cinemachine has a lot of amazing things ranging from, following a model, changing camera perspectives, doing cutscenes; so it was right up our alley. 
+For the camera, instead of normaly rotate with the player we had to detatch it, but by doing so it stopped following the player, we then implemented Cinemachine to fix out problem. The fascinating thing about cinemachine is the fact that you dont have to program or code anything for it to work. Cinemachine has a lot of amazing things ranging from, following a model, changing camera perspectives, doing cutscenes; so it was right up our alley. 
+
+Enemies:
+
+For the enemy ants, (all the blue-colored ants) add an Enemy class to each one, and an EnemyManager that keeps count of how many enemies are on the map. Also took the EnemyFSM code that we made in class and changed it to have three states, 1. Move randomly around the map which is the default, 2. Chase the player when the player gets within range, and 3. Attack the player when the player gets within attack range
+Enemy~
+```c#
+    public class Enemy : MonoBehaviour
+{
+    // Start is called before the first frame update
+    void Start(){
+        EnemyManager.instance.AddEnemy(this);
+    }
+
+    void OnDestroy(){
+        EnemyManager.instance.RemoveEnemy(this);
+    }
+}
+```
+EnemyManager~
+```c#
+    public class EnemyManager : MonoBehaviour
+{
+    public static EnemyManager instance;
+    public List<Enemy> enemies;
+    public UnityEvent onChanged;
+
+    // Simpleton design pattern.
+    void Awake(){
+        if(instance == null){
+            instance = this;
+        }
+        else{
+            Debug.LogError("Duplicated Enemy Manager",gameObject);
+        }
+    }
+
+    public void AddEnemy(Enemy enemy){
+        enemies.Add(enemy);
+        onChanged.Invoke();
+    }
+
+    public void RemoveEnemy(Enemy enemy){
+        enemies.Remove(enemy);
+        onChanged.Invoke();
+    }
+}
+```
+EnemyFSM~
+```c#
+    public class EnemyFSM : MonoBehaviour
+{
+    public enum EnemyState{MoveRandomly,ChasePlayer,AttackPlayer};
+    public EnemyState currentState;
+    public Sight sightSensor;
+    public float playerAttackDistance;
+    public float moveSpeed = 5f;
+    public float chaseRange = 5f;
+    public float rotationSpeed = 2f;
+    private Vector3 destination;
+    
+    private void Awake()
+    {
+        currentState = EnemyState.MoveRandomly;
+    }
+    void Update()
+    {
+        switch (currentState)
+        {
+        case EnemyState.MoveRandomly:
+            MoveRandomly();
+            break;
+        case EnemyState.ChasePlayer:
+            ChasePlayer();
+            break;
+        case EnemyState.AttackPlayer:
+            AttackPlayer();
+            break;
+        }
+    }
+    void LookTo(Vector3 targetPosition)
+    {
+        Vector3 directionToPosition = Vector3.Normalize(targetPosition - transform.parent.position);
+        directionToPosition.y = 0;
+        transform.parent.forward = directionToPosition;
+    }
+    void MoveRandomly()
+    {
+        if(sightSensor.detectedObject != null)
+        {
+            currentState = EnemyState.ChasePlayer;
+        }
+        // Move randomly in one direction
+        transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
+
+        // Rotate to move randomly in another direction
+        transform.Rotate(Vector3.up * Random.Range(-180f, 180f) * rotationSpeed * Time.deltaTime);
+    }
+
+    
+
+    void ChasePlayer()
+    {
+        LookTo(sightSensor.detectedObject.transform.position);
+        if(sightSensor.detectedObject == null)
+        {
+            currentState = EnemyState.MoveRandomly;
+            return;
+        }
+        //verifies if the player is in range to attack
+        float distanceToPlayer = Vector3.Distance(transform.position, sightSensor.detectedObject.transform.position);
+        if(distanceToPlayer <= playerAttackDistance)
+        {
+            currentState = EnemyState.AttackPlayer;
+        }
+    }
+
+    void AttackPlayer()
+    {
+        if(sightSensor.detectedObject == null)
+        {
+            currentState = EnemyState.MoveRandomly;
+            return;
+        }
+
+        float distanceToPlayer = Vector3.Distance(transform.position, sightSensor.detectedObject.transform.position);
+        if(distanceToPlayer > playerAttackDistance* 1.1)
+        {
+            currentState = EnemyState.ChasePlayer;
+        }
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, playerAttackDistance);
+        
+    }
+}
+```
