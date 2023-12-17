@@ -4,6 +4,17 @@
 
 Created by: Edward Garcia and Luis Velázquez and Bryan Guevara
 
+## Incorporated Sylabus Requirements
+- Manipulación de Primitivos y Compuestos
+- Jerarquías, clonaciones y prefabricados
+- Colisionadores (colliders)
+- Elaboración de escenarios con mapas y brochas
+- Texturas 3
+- Programación por eventos
+- Física de los objetos
+- Edición de materiales – Iluminación
+- Animación
+
 ## Description
 
 This project is for the class of video game programming. The game is a 3d top down game where the player controls an ant and has to gather food for the colony before it starves. The player has to fight dangerous enemies and explore the map to find food. The player has to be careful because the player can also starve. The player has to find food and bring it back to the colony.
@@ -74,7 +85,7 @@ public class HealthBar : MonoBehaviour
     
 }
 ```
-Player life update:
+### Player life update:
 
 Set the max health and the current health to the max health. Here the anytime the player takes damage the health bar will update.
 ```c#
@@ -181,9 +192,9 @@ public class QueenHealth : MonoBehaviour
 }
 ```
 
-### the player
+## The player
 
-Controls:
+###Controls:
 
 In this game we could use part of the player script done in class, mainly the new input system. This helped a lot in speeding up the process of coding. Apart from that, the player follows the mouse as the model will always face where the mouse is pointing. that meaans when the player presses W it will move towards the mouse pointer, S moves the player away from it, etc. this is all done on the update function.
 
@@ -201,14 +212,14 @@ In this game we could use part of the player script done in class, mainly the ne
     }
 ```
 
-Camera:
+### Camera:
 
 For the camera, instead of normaly rotate with the player we had to detatch it, but by doing so it stopped following the player, we then implemented Cinemachine to fix out problem. The fascinating thing about cinemachine is the fact that you dont have to program or code anything for it to work. Cinemachine has a lot of amazing things ranging from, following a model, changing camera perspectives, doing cutscenes; so it was right up our alley. 
 
-Enemies:
+### Enemies:
 
 For the enemy ants, (all the blue-colored ants) add an Enemy class to each one, and an EnemyManager that keeps count of how many enemies are on the map. Also took the EnemyFSM code that we made in class and changed it to have three states, 1. Move randomly around the map which is the default, 2. Chase the player when the player gets within range, and 3. Attack the player when the player gets within attack range
-Enemy~
+Enemy:
 ```c#
     public class Enemy : MonoBehaviour
 {
@@ -222,7 +233,7 @@ Enemy~
     }
 }
 ```
-EnemyManager~
+EnemyManager:
 ```c#
     public class EnemyManager : MonoBehaviour
 {
@@ -251,7 +262,7 @@ EnemyManager~
     }
 }
 ```
-EnemyFSM~
+EnemyFSM:
 ```c#
     public class EnemyFSM : MonoBehaviour
 {
@@ -343,3 +354,50 @@ EnemyFSM~
     }
 }
 ```
+
+### Food:
+
+For the food we used a simple script that would add food to the colony when the player collides with it. We also added a script to add health to the colony when player collide with it.
+
+
+```c#
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class HealthItem : MonoBehaviour
+{
+    public int healthAmount = 10;  // The amount of health to give
+    
+
+    private void OnTriggerEnter(Collider other)
+    {
+        // Check if the collider is the player
+        if (other.CompareTag("Player"))
+        {
+            // Give health to the player
+            other.GetComponent<QueenLife>().Heal(healthAmount);
+
+            // Destroy the health item
+            Destroy(gameObject);
+        }
+    }
+}
+```
+
+## Links
+
+Links:
+Ant models:
+Stylized Ant Character | 3D Characters | Unity Asset Store
+Lowpoly Ant - Download Free 3D model by Adan (@Apdigivid.) [cb84feb] (sketchfab.com)
+https://youtu.be/pTb7o4lSd6k
+
+Vegetation:
+https://assetstore.unity.com/packages/3d/vegetation/low-poly-foliage-66638
+https://assetstore.unity.com/packages/3d/environments/simplistic-low-poly-nature-93894
+https://assetstore.unity.com/packages/3d/vegetation/plants/gen04-reeds-free-212548
+https://assetstore.unity.com/packages/vfx/particles/environment/musemi-stylized-grass-wind-and-ambient-vfx-214767
+
+
+
