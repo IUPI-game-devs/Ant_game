@@ -28,11 +28,24 @@ public class Life : MonoBehaviour
             onDeath.Invoke();
             Destroy(gameObject);
         }
+        // every 10 seconds you will gain 1 health if you are below 100 health
+        if (Time.frameCount % 600 == 0 && currentHealth < 100){
+            Heal(1);
+        }
     }
 
     void TakeDamage (int damage)
     {
     currentHealth -= damage;
     healthBar.SetHealth(currentHealth);
+    }
+    // New function to heal the player
+    public void Heal(int healAmount)
+    {
+        // Ensure healing doesn't exceed the maximum health
+        currentHealth = Mathf.Min(currentHealth + healAmount, maxHealth);
+
+        // Update the health bar
+        healthBar.SetHealth(currentHealth);
     }
 }
