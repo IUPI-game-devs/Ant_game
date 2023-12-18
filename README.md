@@ -4,6 +4,10 @@
 
 Created by: Edward Garcia and Luis Velázquez and Bryan Guevara
 
+Video: https://drive.google.com/file/d/16GaJQidkh2FWj0-s8xIH1oFfKM8dYBfZ/view?usp=drive_link
+
+Google Drive: https://drive.google.com/drive/folders/1--Ijx2AyfouxRmoS_gT378mfAzszV6bH?usp=drive_link
+
 ## Incorporated Sylabus Requirements
 - Manipulación de Primitivos y Compuestos
 - Jerarquías, clonaciones y prefabricados
